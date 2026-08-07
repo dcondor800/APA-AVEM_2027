@@ -252,8 +252,10 @@
     /* los conectores punteados estan calculados para la retícula 2x2 del movil:
        en 4 columnas no cuadran, asi que se ocultan */
     .avem-pilares > svg { display: none !important; }
-    .avem-pilares { margin-top: 54px !important; padding-bottom: 0 !important; }
-    .avem-pilares > div { grid-template-columns: repeat(4, 1fr) !important; column-gap: 24px !important; row-gap: 0 !important; }
+    /* 2x2: se acota el ancho para que las tarjetas no queden desproporcionadas
+       de anchas en pantallas grandes */
+    .avem-pilares { margin-top: 54px !important; padding-bottom: 0 !important; max-width: 960px; }
+    .avem-pilares > div { grid-template-columns: repeat(2, 1fr) !important; column-gap: 34px !important; row-gap: 36px !important; }
     .avem-pilares img { width: 64px !important; height: 64px !important; }
     .avem-pilares > div > div > div { margin: 34px 0 0 44px !important; border-radius: 15px !important; padding: 13px 15px 15px !important; }
     .avem-pilares p:nth-of-type(1) { font-size: 14px !important; }
