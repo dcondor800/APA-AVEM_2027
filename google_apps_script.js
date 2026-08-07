@@ -262,7 +262,8 @@ function doGet(e) {
 // cada paso. Cada paso dice OK o FALLO con el motivo.
 // ============================================================
 
-var CORREO_DE_PRUEBA = 'tu-correo@ejemplo.com';
+// Cambia SOLO esta linea por tu direccion.
+var CORREO_DE_PRUEBA = 'CAMBIAME@ejemplo.com';
 
 function diagnosticoCorreo() {
   var L = [];
@@ -271,7 +272,9 @@ function diagnosticoCorreo() {
   log('--- DIAGNOSTICO AVEM 2027 ---');
   log('Destinatario de prueba: ' + CORREO_DE_PRUEBA);
 
-  if (CORREO_DE_PRUEBA === 'tu-correo@ejemplo.com') {
+  // Se busca el marcador "CAMBIAME", no la direccion completa: asi un
+  // buscar-y-reemplazar de la direccion no puede afectar a esta comprobacion.
+  if (CORREO_DE_PRUEBA.indexOf('CAMBIAME') !== -1) {
     log('FALLO: no cambiaste CORREO_DE_PRUEBA por tu direccion real.');
     return L.join('\n');
   }
