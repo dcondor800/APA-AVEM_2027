@@ -249,13 +249,31 @@
     .avem-scroll > section:nth-of-type(2) > div:first-child { padding: 76px 70px 0 !important; }
     .avem-scroll > section:nth-of-type(2) > div:first-child > p:nth-of-type(1) { font-size: 14px !important; }
     .avem-scroll > section:nth-of-type(2) > div:first-child > p:nth-of-type(2) { font-size: 19px !important; max-width: 720px; margin-top: 22px !important; }
-    /* los conectores punteados estan calculados para la retícula 2x2 del movil:
-       en 4 columnas no cuadran, asi que se ocultan */
+    /* El SVG original tiene viewBox de 388px con preserveAspectRatio="none":
+       estirado al ancho de escritorio los guiones saldrian deformados, largos
+       en horizontal y normales en vertical. Se oculta y se redibujan los
+       conectores con bordes punteados, que no se deforman. */
     .avem-pilares > svg { display: none !important; }
+    .avem-pilares > div > div::after {
+      content: ''; position: absolute; z-index: 0; pointer-events: none;
+    }
+    /* 1 -> 2: horizontal por el hueco entre columnas */
+    .avem-pilares > div > div:nth-child(1)::after {
+      top: 62%; right: -56px; width: 56px; border-top: 2px dashed #5752A6;
+    }
+    /* 2 -> 4: vertical por el hueco entre filas, columna derecha */
+    .avem-pilares > div > div:nth-child(2)::after {
+      bottom: -56px; height: 56px; left: 46%; border-left: 2px dashed #5752A6;
+    }
+    /* 4 -> 3: horizontal por el hueco entre columnas, fila inferior */
+    .avem-pilares > div > div:nth-child(3)::after {
+      top: 62%; right: -56px; width: 56px; border-top: 2px dashed #5752A6;
+    }
     /* 2x2: se acota el ancho para que las tarjetas no queden desproporcionadas
        de anchas en pantallas grandes */
     .avem-pilares { margin-top: 54px !important; padding-bottom: 0 !important; max-width: 960px; }
-    .avem-pilares > div { grid-template-columns: repeat(2, 1fr) !important; column-gap: 34px !important; row-gap: 36px !important; }
+    /* los huecos suben a 56px para dar longitud legible a los conectores */
+    .avem-pilares > div { grid-template-columns: repeat(2, 1fr) !important; column-gap: 56px !important; row-gap: 56px !important; }
     .avem-pilares img { width: 64px !important; height: 64px !important; }
     .avem-pilares > div > div > div { margin: 34px 0 0 44px !important; border-radius: 15px !important; padding: 13px 15px 15px !important; }
     .avem-pilares p:nth-of-type(1) { font-size: 14px !important; }
