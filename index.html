@@ -197,6 +197,8 @@
   ::-webkit-scrollbar { width: 0; height: 0; }
   .avem-scroll { scrollbar-width: none; }
   input::placeholder, textarea::placeholder { color: #b9b9c4; }
+  /* Conectores de escritorio: ocultos salvo dentro del @media de abajo */
+  .avem-conn-desktop { display: none; }
   /* ==========================================================
      VERSION DESKTOP
      ----------------------------------------------------------
@@ -249,29 +251,13 @@
     .avem-scroll > section:nth-of-type(2) > div:first-child { padding: 76px 70px 0 !important; }
     .avem-scroll > section:nth-of-type(2) > div:first-child > p:nth-of-type(1) { font-size: 14px !important; }
     .avem-scroll > section:nth-of-type(2) > div:first-child > p:nth-of-type(2) { font-size: 19px !important; max-width: 720px; margin-top: 22px !important; }
-    /* El SVG original tiene viewBox de 388px con preserveAspectRatio="none":
-       estirado al ancho de escritorio los guiones saldrian deformados, largos
-       en horizontal y normales en vertical. Se oculta y se redibujan los
-       conectores con bordes punteados, que no se deforman. */
-    .avem-pilares > svg { display: none !important; }
-    .avem-pilares > div > div::after {
-      content: ''; position: absolute; z-index: 0; pointer-events: none;
-    }
-    /* 1 -> 2: horizontal por el hueco entre columnas */
-    .avem-pilares > div > div:nth-child(1)::after {
-      top: 62%; right: -56px; width: 56px; border-top: 2px dashed #5752A6;
-    }
-    /* 2 -> 4: vertical por el hueco entre filas, columna derecha */
-    .avem-pilares > div > div:nth-child(2)::after {
-      bottom: -56px; height: 56px; left: 46%; border-left: 2px dashed #5752A6;
-    }
-    /* 4 -> 3: horizontal por el hueco entre columnas, fila inferior */
-    .avem-pilares > div > div:nth-child(3)::after {
-      top: 62%; right: -56px; width: 56px; border-top: 2px dashed #5752A6;
-    }
+    /* Se cambia el SVG de movil por el de escritorio */
+    .avem-pilares > svg:first-of-type { display: none !important; }
+    .avem-conn-desktop { display: block !important; }
     /* 2x2: se acota el ancho para que las tarjetas no queden desproporcionadas
        de anchas en pantallas grandes */
-    .avem-pilares { margin-top: 54px !important; padding-bottom: 0 !important; max-width: 960px; }
+    /* el padding inferior deja sitio al lazo que baja por debajo de la fila 2 */
+    .avem-pilares { margin-top: 54px !important; padding-bottom: 46px !important; max-width: 960px; }
     /* los huecos suben a 56px para dar longitud legible a los conectores */
     .avem-pilares > div { grid-template-columns: repeat(2, 1fr) !important; column-gap: 56px !important; row-gap: 56px !important; }
     .avem-pilares img { width: 64px !important; height: 64px !important; }
@@ -447,6 +433,20 @@
             <path d="M12 64 V132 Q12 144 24 144 H182 Q194 144 194 132 V30 Q194 18 206 18 H214"/>
             <path d="M264 16 H308 Q320 16 320 28 V143 Q320 155 308 155 H226 Q214 155 214 167 V173"/>
             <path d="M12 231 V299 Q12 311 24 311 H182 Q194 311 194 299 V197 Q194 185 206 185 H214"/>
+          </g>
+        </svg>
+
+        <!-- Los mismos conectores redibujados para la reticula 2x2 de escritorio.
+             Se usa un SVG aparte, y no el de arriba, porque su viewBox de 388px
+             estirado al ancho de escritorio deformaria los guiones. Este lleva un
+             viewBox de 960x358, que son las medidas reales de la caja en desktop,
+             asi que la escala es 1:1 y no hay deformacion.
+             Oculto por defecto; solo se muestra dentro del @media. -->
+        <svg class="avem-conn-desktop" viewBox="0 0 960 358" preserveAspectRatio="none" aria-hidden="true" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none;">
+          <g fill="none" stroke="#5752A6" stroke-width="2" stroke-dasharray="7 7" stroke-linecap="round">
+            <path d="M16 68 V128 Q16 140 28 140 H468 Q480 140 480 128 V32 Q480 20 492 20 H520"/>
+            <path d="M576 18 H768 Q780 18 780 30 V143 Q780 155 768 155 H542 Q530 155 530 167 V182"/>
+            <path d="M16 244 V334 Q16 346 28 346 H468 Q480 346 480 334 V210 Q480 198 492 198 H520"/>
           </g>
         </svg>
 
