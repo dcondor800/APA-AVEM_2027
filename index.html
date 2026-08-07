@@ -757,6 +757,42 @@
 class Component extends DCLogic {
   state = { view: 'home', selA: [], selE: [], plano: false };
 
+  // Scroll propio en vez de scrollIntoView({behavior:'smooth'}), que no permite
+  // controlar duracion ni curva: el navegador impone las suyas y resultan muy rapidas.
+  scrollARegistro() {
+    const destino = document.getElementById('avem-selector');
+    if (!destino) return;
+    // El scroll no es de la ventana sino del contenedor; se busca el que
+    // realmente contiene a la seccion (hay otros .avem-scroll en los modales).
+    const cont = destino.closest('.avem-scroll');
+    if (!cont) return;
+
+    if (this._animScroll) cancelAnimationFrame(this._animScroll);
+
+    const inicio = cont.scrollTop;
+    const bruto = inicio + destino.getBoundingClientRect().top - cont.getBoundingClientRect().top;
+    const fin = Math.max(0, Math.min(bruto, cont.scrollHeight - cont.clientHeight));
+    const dist = fin - inicio;
+    if (Math.abs(dist) < 2) return;
+
+    // Quien pide menos movimiento en el sistema recibe un salto directo.
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { cont.scrollTop = fin; return; }
+
+    const DURACION = 1100;
+    // easeInOutCubic: arranca suave, coge velocidad y desacelera al llegar.
+    const curva = t => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const t0 = performance.now();
+
+    const paso = (ahora) => {
+      const t = Math.min((ahora - t0) / DURACION, 1);
+      cont.scrollTop = inicio + dist * curva(t);
+      if (t < 1) this._animScroll = requestAnimationFrame(paso);
+      else this._animScroll = null;
+    };
+    this._animScroll = requestAnimationFrame(paso);
+  }
+
   openPlano() {
     this.setState({ plano: true });
     // centra el plano horizontalmente al abrir, en vez de dejarlo en el borde izquierdo
@@ -889,10 +925,7 @@ class Component extends DCLogic {
       showPlano: this.state.plano,
       openPlano: () => this.openPlano(),
       closePlano: () => this.setState({ plano: false }),
-      goRegistro: () => {
-        const el = document.getElementById('avem-selector');
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      },
+      goRegistro: () => this.scrollARegistro(),
       openEmpresa: () => this.go('empresa'),
       openAsistente: () => this.go('asistente'),
       close: () => this.go('home'),
