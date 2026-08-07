@@ -76,6 +76,12 @@
 var FOOTER_URL = 'https://dcondor800.github.io/APA-AVEM_2027/screenshots/email-footer.png';
 var ASUNTO = 'Gracias por registrar tu interes en AVEM 2027';
 
+// Logger.log existe en los dos runtimes de Apps Script (V8 y el antiguo Rhino).
+// console solo existe en V8, por eso no se usa directamente.
+function avisar(texto) {
+  try { Logger.log(texto); } catch (e) {}
+}
+
 function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
@@ -140,7 +146,7 @@ function doPost(e) {
     try {
       enviarConfirmacion(data.correo);
     } catch (errMail) {
-      console.error('Fallo el correo de confirmacion a ' + data.correo + ': ' + errMail);
+      avisar('Fallo el correo de confirmacion a ' + data.correo + ': ' + errMail);
     }
 
     return ContentService.createTextOutput(JSON.stringify({status: 'ok'}))
@@ -156,11 +162,11 @@ function enviarConfirmacion(correo) {
   if (!correo) return;
   correo = String(correo).trim();
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(correo)) {
-    console.warn('Correo con formato invalido, no se envia: ' + correo);
+    avisar('Correo con formato invalido, no se envia: ' + correo);
     return;
   }
   if (MailApp.getRemainingDailyQuota() < 1) {
-    console.warn('Cuota diaria de correo agotada. No se envio a ' + correo);
+    avisar('Cuota diaria de correo agotada. No se envio a ' + correo);
     return;
   }
 
@@ -178,7 +184,7 @@ function enviarConfirmacion(correo) {
     var blob = UrlFetchApp.fetch(FOOTER_URL).getBlob().setName('footer.png');
     opciones.inlineImages = {footer: blob};
   } catch (errImg) {
-    console.warn('No se pudo cargar el pie de pagina, se envia sin imagen: ' + errImg);
+    avisar('No se pudo cargar el pie de pagina, se envia sin imagen: ' + errImg);
     opciones.htmlBody = cuerpoHtml(false);
   }
 
@@ -247,9 +253,84 @@ function doGet(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// Utilidad: ejecutala manualmente desde el editor para probar el correo
-// sin tener que llenar el formulario. Cambia la direccion por la tuya.
-function probarCorreo() {
-  enviarConfirmacion('tu-correo@ejemplo.com');
-  console.log('Enviado. Cuota restante hoy: ' + MailApp.getRemainingDailyQuota());
+// ============================================================
+// DIAGNOSTICO
+// ============================================================
+// Cambia la direccion de abajo por la tuya, selecciona
+// diagnosticoCorreo en el desplegable de arriba y pulsa Ejecutar.
+// Despues abre "Registro de ejecucion" para ver el resultado de
+// cada paso. Cada paso dice OK o FALLO con el motivo.
+// ============================================================
+
+var CORREO_DE_PRUEBA = 'tu-correo@ejemplo.com';
+
+function diagnosticoCorreo() {
+  var L = [];
+  function log(t) { L.push(t); Logger.log(t); }
+
+  log('--- DIAGNOSTICO AVEM 2027 ---');
+  log('Destinatario de prueba: ' + CORREO_DE_PRUEBA);
+
+  if (CORREO_DE_PRUEBA === 'tu-correo@ejemplo.com') {
+    log('FALLO: no cambiaste CORREO_DE_PRUEBA por tu direccion real.');
+    return L.join('\n');
+  }
+
+  // 1. Runtime
+  try {
+    log('1. Runtime V8: ' + (typeof console !== 'undefined' ? 'SI' : 'NO (Rhino antiguo)'));
+  } catch (e) {
+    log('1. Runtime: no se pudo determinar');
+  }
+
+  // 2. Cuenta y cuota
+  try {
+    log('2. Ejecutando como: ' + Session.getEffectiveUser().getEmail());
+    log('   Cuota de correo restante hoy: ' + MailApp.getRemainingDailyQuota());
+  } catch (e) {
+    log('2. FALLO al leer cuenta/cuota: ' + e);
+    log('   >> Suele significar que faltan permisos. Vuelve a autorizar el script.');
+    return L.join('\n');
+  }
+
+  // 3. Envio minimo, sin HTML ni imagen: aisla si el problema es MailApp
+  try {
+    MailApp.sendEmail(CORREO_DE_PRUEBA, 'AVEM 2027 - prueba 1 de 2 (texto simple)',
+      'Si recibes este mensaje, MailApp funciona correctamente.');
+    log('3. Envio simple: OK (enviado)');
+  } catch (e) {
+    log('3. FALLO en el envio simple: ' + e);
+    log('   >> El problema es MailApp: permisos o cuota. No sigas al paso 4.');
+    return L.join('\n');
+  }
+
+  // 4. Descarga del pie de pagina
+  var blob = null;
+  try {
+    blob = UrlFetchApp.fetch(FOOTER_URL).getBlob().setName('footer.png');
+    log('4. Descarga del pie: OK (' + blob.getBytes().length + ' bytes)');
+  } catch (e) {
+    log('4. FALLO al descargar el pie: ' + e);
+    log('   >> El correo se enviara igual, pero sin el banner.');
+  }
+
+  // 5. Envio completo, igual al que recibe quien se registra
+  try {
+    var opciones = {
+      to: CORREO_DE_PRUEBA,
+      subject: 'AVEM 2027 - prueba 2 de 2 (correo real)',
+      name: 'AVEM 2027',
+      body: textoPlano(),
+      htmlBody: cuerpoHtml(blob !== null)
+    };
+    if (blob) opciones.inlineImages = {footer: blob};
+    MailApp.sendEmail(opciones);
+    log('5. Envio completo: OK (enviado)');
+  } catch (e) {
+    log('5. FALLO en el envio completo: ' + e);
+    return L.join('\n');
+  }
+
+  log('--- FIN: se enviaron 2 correos. REVISA TAMBIEN LA CARPETA DE SPAM. ---');
+  return L.join('\n');
 }
