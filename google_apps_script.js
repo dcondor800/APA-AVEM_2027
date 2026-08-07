@@ -79,11 +79,28 @@ var ASUNTO = 'Gracias por registrar tu interes en AVEM 2027';
 // ---- REMITENTE -------------------------------------------------------
 // Direccion desde la que salen los correos.
 //
-// IMPORTANTE: Google solo permite usarla si es un ALIAS VERIFICADO de la
-// cuenta que ejecuta el script. Se configura en Gmail:
-//   Configuracion > Cuentas e importacion > "Enviar como" > Anadir otra
-//   direccion. Google manda un codigo a esa direccion y alguien con acceso
-//   debe confirmarlo.
+// OJO: Apps Script NO puede conectarse a un servidor SMTP. No tiene API de
+// sockets; UrlFetchApp solo hace HTTP/HTTPS. Por eso aqui no se ponen host,
+// puerto ni contrasena de aplicacion: eso va en la configuracion de Gmail.
+//
+// Google solo acepta esta direccion si es un ALIAS VERIFICADO de la cuenta
+// que ejecuta el script. Para darla de alta:
+//
+//   Gmail > Configuracion > Cuentas e importacion > "Enviar como"
+//         > Anadir otra direccion de correo
+//
+//   1. Escribe la direccion (ej. apaeventos@apa.org.pe)
+//   2. Desmarca "Tratar como un alias"
+//   3. Servidor SMTP del cliente + puerto 587 (TLS)
+//      Usuario: la direccion completa
+//      Contrasena: la contrasena de aplicacion del cliente
+//      (16 caracteres en 4 grupos, ej. "jiab sppf msnh bfqm";
+//       requiere verificacion en 2 pasos activa en esa cuenta)
+//   4. Google envia un codigo a esa direccion; alguien con acceso lo confirma
+//
+// Enviar a traves del SMTP del cliente es lo recomendable: el correo se
+// relaya por su servidor, asi SPF y DKIM alinean con su dominio y no hay
+// problemas de DMARC ni de reputacion.
 //
 // Si se deja vacio, o si la direccion no es un alias valido, el correo sale
 // igual desde la cuenta que desplego el script (no se pierde ningun envio).
