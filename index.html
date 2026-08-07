@@ -207,18 +207,30 @@
      ========================================================== */
   @media (min-width: 900px) {
 
-    /* ---- Marco: el "telefono" se convierte en pagina ---- */
+    /* ---- Marco: el "telefono" desaparece, la pagina ocupa todo el ancho ---- */
     .avem-fondo  { background: #ffffff !important; }
-    .avem-marco  { max-width: 1120px !important; box-shadow: none !important; }
+    .avem-marco  { max-width: none !important; box-shadow: none !important; }
     .avem-panel  { max-width: 620px !important; }
 
-    .avem-scroll > section { padding-left: 70px !important; padding-right: 70px !important; }
+    /* Los fondos de seccion van a sangre; el contenido se centra y se acota a
+       1240px mediante el padding. max() evita que en pantallas medianas el
+       calculo devuelva un valor menor que el margen minimo. */
+    .avem-scroll > section {
+      padding-left:  max(70px, calc((100% - 1240px) / 2)) !important;
+      padding-right: max(70px, calc((100% - 1240px) / 2)) !important;
+    }
 
     /* ---- 1. HERO ---- */
     .avem-scroll > section:nth-of-type(1) { padding-top: 64px !important; padding-bottom: 76px !important; }
-    /* los dos ovalos decorativos crecen con el marco */
-    .avem-scroll > section:nth-of-type(1) > div:nth-child(1) { width: 1000px !important; height: 1560px !important; top: -150px !important; }
-    .avem-scroll > section:nth-of-type(1) > div:nth-child(2) { width: 760px !important; height: 1320px !important; top: -90px !important; }
+    /* Los dos ovalos escalan con el ancho pero con tope, para que en pantallas
+       muy anchas sigan siendo un huevo centrado y el amarillo base se vea en
+       las esquinas en lugar de quedar cubierto. */
+    .avem-scroll > section:nth-of-type(1) > div:nth-child(1) {
+      width: min(76vw, 1320px) !important; height: min(122vw, 2120px) !important; top: -190px !important;
+    }
+    .avem-scroll > section:nth-of-type(1) > div:nth-child(2) {
+      width: min(57vw, 1000px) !important; height: min(100vw, 1740px) !important; top: -120px !important;
+    }
     .avem-scroll > section:nth-of-type(1) > div:nth-child(3) { max-width: 660px; margin: 0 auto; }
     .avem-scroll > section:nth-of-type(1) p:nth-of-type(1) { font-size: 17px !important; }
     .avem-scroll > section:nth-of-type(1) p:nth-of-type(2) { font-size: 18px !important; }
@@ -246,9 +258,34 @@
     .avem-pilares > div > div > div { margin: 34px 0 0 44px !important; border-radius: 15px !important; padding: 13px 15px 15px !important; }
     .avem-pilares p:nth-of-type(1) { font-size: 14px !important; }
     .avem-pilares p:nth-of-type(2) { font-size: 12.5px !important; }
-    /* se recorta un poco mas de gris muerto sobre el dibujo */
-    .avem-scroll > section:nth-of-type(2) > div:last-child { margin-top: 0 !important; }
-    .avem-scroll > section:nth-of-type(2) > div:last-child > div { margin-top: -15.5% !important; }
+    /* La ilustracion va a sangre, pero a ancho completo su alto crece sin
+       control (es 0.5707 del ancho). Se fija el alto de la banda y se recorta
+       por arriba: 57.07% del ancho es exactamente el alto de la imagen, asi
+       que restarlo alinea su base con la del contenedor. El div interior
+       conserva la caja completa, por lo que los % del ojo siguen validos. */
+    .avem-scroll > section:nth-of-type(2) > div:last-child {
+      height: 430px !important; margin-top: 0 !important;
+      /* escapa del padding de la seccion para ir a sangre de borde a borde */
+      margin-left: calc(50% - 50vw) !important;
+      margin-right: calc(50% - 50vw) !important;
+    }
+    .avem-scroll > section:nth-of-type(2) > div:last-child > div { margin-top: calc(430px - 57.07%) !important; }
+
+    /* El ojo animado se dimensiona en px fijos (18 y 11), calibrados para el
+       marco de 440px. Al crecer la imagen dejaban de tapar el ojo del dibujo y
+       asomaba un halo. Se pasan a % del ancho de la imagen: 18/440 = 4.09%. */
+    .avem-scroll > section:nth-of-type(2) > div:last-child > div > span {
+      width: 4.09% !important; height: auto !important; aspect-ratio: 1 !important;
+    }
+    /* :first-child limita la regla a la mascara blanca. Sin el, este selector
+       tambien alcanzaba a .hen-eye y le ganaba por especificidad, dejando la
+       pupila del tamano de la mascara. */
+    .avem-scroll > section:nth-of-type(2) > div:last-child > div > span > span:first-child {
+      width: 100% !important; height: auto !important; aspect-ratio: 1 !important;
+    }
+    .avem-scroll > section:nth-of-type(2) .hen-eye {
+      width: 61% !important; height: auto !important; aspect-ratio: 1 !important;
+    }
 
     /* ---- 3. VIDEOS: los dos en fila ---- */
     .avem-scroll > section:nth-of-type(3) { display: grid; grid-template-columns: 1fr 1fr; column-gap: 34px; align-items: start; padding-top: 60px !important; padding-bottom: 60px !important; }
@@ -272,15 +309,22 @@
     /* ---- 5. ZONA FERIAL ---- */
     .avem-scroll > section:nth-of-type(5) { padding-top: 70px !important; padding-bottom: 76px !important; }
     .avem-scroll > section:nth-of-type(5) > p { font-size: 19px !important; max-width: 760px; }
+    /* el PNG del plano mide 1077px: pasado ese ancho se ampliaria y saldria borroso */
+    .avem-scroll > section:nth-of-type(5) > button { max-width: 1080px; margin-left: auto !important; margin-right: auto !important; }
     /* leyenda: los 4 en una fila */
-    .avem-scroll > section:nth-of-type(5) > div:last-child { padding: 18px 24px !important; border-radius: 14px !important; }
+    .avem-scroll > section:nth-of-type(5) > div:last-child { max-width: 1080px; margin-left: auto !important; margin-right: auto !important; padding: 18px 24px !important; border-radius: 14px !important; }
     .avem-scroll > section:nth-of-type(5) > div:last-child > div { grid-template-columns: repeat(4, 1fr) !important; }
     .avem-scroll > section:nth-of-type(5) > div:last-child span:last-child { font-size: 14px !important; }
     .avem-scroll > section:nth-of-type(5) button span:last-child { font-size: 13px !important; padding: 9px 17px !important; }
 
     /* ---- 6. SELECTOR: botones lado a lado ---- */
     /* el fondo debe llegar a los bordes: se centra con padding, no con max-width */
-    #avem-selector { display: grid; grid-template-columns: 1fr 1fr; column-gap: 26px; padding: 76px 130px 84px !important; }
+    #avem-selector {
+      display: grid; grid-template-columns: 1fr 1fr; column-gap: 26px;
+      padding-top: 76px !important; padding-bottom: 84px !important;
+      padding-left:  max(70px, calc((100% - 900px) / 2)) !important;
+      padding-right: max(70px, calc((100% - 900px) / 2)) !important;
+    }
     #avem-selector > p { grid-column: 1 / -1; font-size: 30px !important; margin-bottom: 34px !important; }
     #avem-selector > button { margin-bottom: 0 !important; font-size: 21px !important; padding: 24px !important; }
 
