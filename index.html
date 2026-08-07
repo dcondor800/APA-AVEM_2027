@@ -197,6 +197,102 @@
   ::-webkit-scrollbar { width: 0; height: 0; }
   .avem-scroll { scrollbar-width: none; }
   input::placeholder, textarea::placeholder { color: #b9b9c4; }
+  /* ==========================================================
+     VERSION DESKTOP
+     ----------------------------------------------------------
+     Todo el diseno movil vive en atributos style="" inline. Las
+     reglas de hoja de estilos pierden frente a un inline, por eso
+     aqui se usa !important. Nada de esto aplica por debajo de
+     900px: el movil queda intacto.
+     ========================================================== */
+  @media (min-width: 900px) {
+
+    /* ---- Marco: el "telefono" se convierte en pagina ---- */
+    .avem-fondo  { background: #ffffff !important; }
+    .avem-marco  { max-width: 1120px !important; box-shadow: none !important; }
+    .avem-panel  { max-width: 620px !important; }
+
+    .avem-scroll > section { padding-left: 70px !important; padding-right: 70px !important; }
+
+    /* ---- 1. HERO ---- */
+    .avem-scroll > section:nth-of-type(1) { padding-top: 64px !important; padding-bottom: 76px !important; }
+    /* los dos ovalos decorativos crecen con el marco */
+    .avem-scroll > section:nth-of-type(1) > div:nth-child(1) { width: 1000px !important; height: 1560px !important; top: -150px !important; }
+    .avem-scroll > section:nth-of-type(1) > div:nth-child(2) { width: 760px !important; height: 1320px !important; top: -90px !important; }
+    .avem-scroll > section:nth-of-type(1) > div:nth-child(3) { max-width: 660px; margin: 0 auto; }
+    .avem-scroll > section:nth-of-type(1) p:nth-of-type(1) { font-size: 17px !important; }
+    .avem-scroll > section:nth-of-type(1) p:nth-of-type(2) { font-size: 18px !important; }
+    .avem-scroll > section:nth-of-type(1) p:nth-of-type(3) { font-size: 18px !important; margin-top: 14px !important; }
+    .avem-scroll > section:nth-of-type(1) img { max-width: 430px !important; margin-top: 14px !important; }
+    .avem-scroll > section:nth-of-type(1) h1 { font-size: 32px !important; margin-top: 20px !important; }
+    .avem-scroll > section:nth-of-type(1) h1 span { font-size: 37px !important; }
+    .avem-scroll > section:nth-of-type(1) > div:nth-child(3) > p:nth-of-type(4) { font-size: 19px !important; max-width: 520px !important; margin-top: 18px !important; }
+    .avem-scroll > section:nth-of-type(1) button { font-size: 19px !important; padding: 17px 54px !important; margin-top: 26px !important; }
+
+    /* ---- Titulares de seccion ---- */
+    .avem-scroll h2 { font-size: 36px !important; }
+    .avem-scroll > section:nth-of-type(2) h2 { font-size: 46px !important; max-width: 700px; }
+
+    /* ---- 2. PILARES + ilustracion ---- */
+    .avem-scroll > section:nth-of-type(2) > div:first-child { padding: 76px 70px 0 !important; }
+    .avem-scroll > section:nth-of-type(2) > div:first-child > p:nth-of-type(1) { font-size: 14px !important; }
+    .avem-scroll > section:nth-of-type(2) > div:first-child > p:nth-of-type(2) { font-size: 19px !important; max-width: 720px; margin-top: 22px !important; }
+    /* los conectores punteados estan calculados para la retícula 2x2 del movil:
+       en 4 columnas no cuadran, asi que se ocultan */
+    .avem-pilares > svg { display: none !important; }
+    .avem-pilares { margin-top: 54px !important; padding-bottom: 0 !important; }
+    .avem-pilares > div { grid-template-columns: repeat(4, 1fr) !important; column-gap: 24px !important; row-gap: 0 !important; }
+    .avem-pilares img { width: 64px !important; height: 64px !important; }
+    .avem-pilares > div > div > div { margin: 34px 0 0 44px !important; border-radius: 15px !important; padding: 13px 15px 15px !important; }
+    .avem-pilares p:nth-of-type(1) { font-size: 14px !important; }
+    .avem-pilares p:nth-of-type(2) { font-size: 12.5px !important; }
+    /* se recorta un poco mas de gris muerto sobre el dibujo */
+    .avem-scroll > section:nth-of-type(2) > div:last-child { margin-top: 0 !important; }
+    .avem-scroll > section:nth-of-type(2) > div:last-child > div { margin-top: -15.5% !important; }
+
+    /* ---- 3. VIDEOS: los dos en fila ---- */
+    .avem-scroll > section:nth-of-type(3) { display: grid; grid-template-columns: 1fr 1fr; column-gap: 34px; align-items: start; padding-top: 60px !important; padding-bottom: 60px !important; }
+    .avem-scroll > section:nth-of-type(3) > p:first-child  { grid-column: 1 / -1; font-size: 12px !important; }
+    .avem-scroll > section:nth-of-type(3) > h2:nth-of-type(1)  { grid-column: 1; grid-row: 2; margin-top: 22px !important; }
+    .avem-scroll > section:nth-of-type(3) > div:nth-of-type(1) { grid-column: 1; grid-row: 3; }
+    .avem-scroll > section:nth-of-type(3) > h2:nth-of-type(2)  { grid-column: 2; grid-row: 2; margin-top: 22px !important; }
+    .avem-scroll > section:nth-of-type(3) > div:nth-of-type(2) { grid-column: 2; grid-row: 3; }
+    .avem-scroll > section:nth-of-type(3) > p:last-child { grid-column: 1 / -1; grid-row: 4; font-size: 13px !important; max-width: 620px !important; margin-top: 20px !important; }
+
+    /* ---- 4. SEDE: la cascada pasa a fila de 4 ---- */
+    .avem-scroll > section:nth-of-type(4) { padding-top: 70px !important; padding-bottom: 76px !important; }
+    .avem-scroll > section:nth-of-type(4) > p { font-size: 19px !important; max-width: 760px; }
+    .avem-sede { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 46px !important; }
+    .avem-sede > svg { display: none !important; }
+    .avem-sede > div { width: auto !important; margin: 0 !important; border-radius: 15px !important; padding: 14px 16px 16px 40px !important; }
+    .avem-sede > div > div { left: 13px !important; width: 16px !important; border-radius: 8px !important; }
+    .avem-sede p:nth-of-type(1) { font-size: 14px !important; }
+    .avem-sede p:nth-of-type(2) { font-size: 12.5px !important; }
+
+    /* ---- 5. ZONA FERIAL ---- */
+    .avem-scroll > section:nth-of-type(5) { padding-top: 70px !important; padding-bottom: 76px !important; }
+    .avem-scroll > section:nth-of-type(5) > p { font-size: 19px !important; max-width: 760px; }
+    /* leyenda: los 4 en una fila */
+    .avem-scroll > section:nth-of-type(5) > div:last-child { padding: 18px 24px !important; border-radius: 14px !important; }
+    .avem-scroll > section:nth-of-type(5) > div:last-child > div { grid-template-columns: repeat(4, 1fr) !important; }
+    .avem-scroll > section:nth-of-type(5) > div:last-child span:last-child { font-size: 14px !important; }
+    .avem-scroll > section:nth-of-type(5) button span:last-child { font-size: 13px !important; padding: 9px 17px !important; }
+
+    /* ---- 6. SELECTOR: botones lado a lado ---- */
+    /* el fondo debe llegar a los bordes: se centra con padding, no con max-width */
+    #avem-selector { display: grid; grid-template-columns: 1fr 1fr; column-gap: 26px; padding: 76px 130px 84px !important; }
+    #avem-selector > p { grid-column: 1 / -1; font-size: 30px !important; margin-bottom: 34px !important; }
+    #avem-selector > button { margin-bottom: 0 !important; font-size: 21px !important; padding: 24px !important; }
+
+    /* ---- 7. HABLEMOS ---- */
+    .avem-scroll > section:nth-of-type(7) { padding-top: 64px !important; padding-bottom: 56px !important; }
+    .avem-scroll > section:nth-of-type(7) h4 { font-size: 34px !important; }
+    .avem-scroll > section:nth-of-type(7) > p { font-size: 16px !important; max-width: 520px; }
+    .avem-scroll > section:nth-of-type(7) > span { font-size: 16px !important; padding: 11px 24px !important; }
+    .avem-scroll > section:nth-of-type(7) img:nth-of-type(1) { height: 52px !important; }
+    .avem-scroll > section:nth-of-type(7) img:nth-of-type(2) { height: 46px !important; }
+  }
+
   @font-face {
     font-family: 'Aesthet Nova';
     font-style: normal;
@@ -211,8 +307,8 @@
 </style>
 </helmet>
 
-<div style="height:100vh; background:#d6d5d1; display:flex; justify-content:center;">
-<div style="position:relative; width:100%; max-width:440px; height:100vh; background:#ffffff; overflow:hidden; box-shadow:0 0 60px rgba(0,0,0,.22);">
+<div class="avem-fondo" style="height:100vh; background:#d6d5d1; display:flex; justify-content:center;">
+<div class="avem-marco" style="position:relative; width:100%; max-width:440px; height:100vh; background:#ffffff; overflow:hidden; box-shadow:0 0 60px rgba(0,0,0,.22);">
 
   <!-- ============ HOME ============ -->
   <div class="avem-scroll" style="position:absolute; inset:0; overflow-y:auto;">
