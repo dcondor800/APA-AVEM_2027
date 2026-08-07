@@ -1,0 +1,39 @@
+# --- Fuentes de diseño (no se publican) ---
+ACTUALIZADO/
+fuentes/
+*.ai
+*.pdf
+*.zip
+
+# --- Versión anterior de la landing (reemplazada por index.html) ---
+index2.html
+app.js
+styles.css
+
+# --- Respaldos y utilidades de build del flujo antiguo ---
+index_bundled_backup.html
+AVEM 2027 Landing_BACKUP.html
+patch_bundle.js
+google_apps_script.js
+
+# Asset del bundle original que la landing actual no referencia
+assets/dcd0424e-02fb-4c4d-a054-6cdc9a884cf7.png
+
+# --- Notas internas ---
+MEMORIA.md
+
+# --- Capturas de referencia y assets que la landing ya no usa ---
+screenshots/asistente.png
+screenshots/confirmacion.png
+screenshots/empresa.png
+screenshots/home.png
+
+# Iconos del set antiguo del formulario (la landing solo usa iconos/pilar-*.png)
+screenshots/iconos/avem_digital.png
+screenshots/iconos/feria_dinamica.png
+screenshots/iconos/mejor_experiencia.png
+screenshots/iconos/multiproteina.png
+screenshots/iconos/newtorking.png
+screenshots/iconos/nuevos_formatos.png
+screenshots/iconos/recinto_ferial.png
+screenshots/iconos/talento.png
