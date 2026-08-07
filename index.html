@@ -779,16 +779,18 @@ class Component extends DCLogic {
     const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce) { cont.scrollTop = fin; return; }
 
-    // Recorrido a velocidad constante: se fija la velocidad, no la duracion,
-    // de modo que no hay aceleracion en ningun tramo. La duracion sale de la
-    // distancia, asi cualquier recorrido avanza al mismo ritmo.
-    const VELOCIDAD = 900;   // px por segundo
-    const DURACION = Math.min(Math.max(Math.abs(dist) / VELOCIDAD * 1000, 500), 4000);
+    // La duracion se deriva de la distancia (velocidad media objetivo), asi
+    // cualquier recorrido mantiene un ritmo comparable.
+    const VELOCIDAD_MEDIA = 900;   // px por segundo
+    const DURACION = Math.min(Math.max(Math.abs(dist) / VELOCIDAD_MEDIA * 1000, 600), 4500);
+    // easeOutCubic: sale al triple de la velocidad media y frena de forma
+    // progresiva hasta detenerse en el destino.
+    const curva = t => 1 - Math.pow(1 - t, 3);
     const t0 = performance.now();
 
     const paso = (ahora) => {
       const t = Math.min((ahora - t0) / DURACION, 1);
-      cont.scrollTop = inicio + dist * t;   // lineal: sin aceleracion
+      cont.scrollTop = inicio + dist * curva(t);
       if (t < 1) this._animScroll = requestAnimationFrame(paso);
       else this._animScroll = null;
     };
