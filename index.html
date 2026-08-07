@@ -292,6 +292,12 @@
     /* ---- 3. VIDEOS: los dos en fila ---- */
     .avem-scroll > section:nth-of-type(3) { display: grid; grid-template-columns: 1fr 1fr; column-gap: 34px; align-items: start; padding-top: 60px !important; padding-bottom: 60px !important; }
     .avem-scroll > section:nth-of-type(3) > p:first-child  { grid-column: 1 / -1; font-size: 12px !important; }
+    /* Estos dos titulares viven en una columna de media anchura, no en el ancho
+       de la seccion, asi que necesitan su propio tamano. El calc deriva del
+       ancho de columna —(100vw - 140 de padding - 34 de gap) / 2— para que
+       "La voz de sus protagonistas" quepa en una linea tambien en pantallas
+       de escritorio pequenas. El tope de 36px lo fija a partir de ~1300px. */
+    .avem-scroll > section:nth-of-type(3) h2 { font-size: min(36px, calc(3.2vw - 6px)) !important; }
     .avem-scroll > section:nth-of-type(3) > h2:nth-of-type(1)  { grid-column: 1; grid-row: 2; margin-top: 22px !important; }
     .avem-scroll > section:nth-of-type(3) > div:nth-of-type(1) { grid-column: 1; grid-row: 3; }
     .avem-scroll > section:nth-of-type(3) > h2:nth-of-type(2)  { grid-column: 2; grid-row: 2; margin-top: 22px !important; }
