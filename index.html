@@ -318,12 +318,18 @@
     .avem-scroll > section:nth-of-type(5) { padding-top: 70px !important; padding-bottom: 76px !important; }
     .avem-scroll > section:nth-of-type(5) > p { font-size: 19px !important; max-width: 760px; }
     /* el PNG del plano mide 1077px: pasado ese ancho se ampliaria y saldria borroso */
-    .avem-scroll > section:nth-of-type(5) > button { max-width: 1080px; margin-left: auto !important; margin-right: auto !important; }
+    .avem-scroll > section:nth-of-type(5) > button {
+      max-width: 1080px; margin-left: auto !important; margin-right: auto !important;
+      /* En desktop el plano ya se ve a tamano casi nativo, asi que no hay nada
+         que ampliar: se retira el boton y se desactiva el clic para que no
+         abra el visor a pantalla completa sin afordancia visible. */
+      pointer-events: none !important; cursor: default !important;
+    }
+    .avem-scroll > section:nth-of-type(5) > button > span:last-child { display: none !important; }
     /* leyenda: los 4 en una fila */
     .avem-scroll > section:nth-of-type(5) > div:last-child { max-width: 1080px; margin-left: auto !important; margin-right: auto !important; padding: 18px 24px !important; border-radius: 14px !important; }
     .avem-scroll > section:nth-of-type(5) > div:last-child > div { grid-template-columns: repeat(4, 1fr) !important; }
     .avem-scroll > section:nth-of-type(5) > div:last-child span:last-child { font-size: 14px !important; }
-    .avem-scroll > section:nth-of-type(5) button span:last-child { font-size: 13px !important; padding: 9px 17px !important; }
 
     /* ---- 6. SELECTOR: botones lado a lado ---- */
     /* el fondo debe llegar a los bordes: se centra con padding, no con max-width */
