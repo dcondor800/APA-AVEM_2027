@@ -76,6 +76,25 @@
 var FOOTER_URL = 'https://dcondor800.github.io/APA-AVEM_2027/screenshots/email-footer.png';
 var ASUNTO = 'Gracias por registrar tu interes en AVEM 2027';
 
+// ---- REMITENTE -------------------------------------------------------
+// Direccion desde la que salen los correos.
+//
+// IMPORTANTE: Google solo permite usarla si es un ALIAS VERIFICADO de la
+// cuenta que ejecuta el script. Se configura en Gmail:
+//   Configuracion > Cuentas e importacion > "Enviar como" > Anadir otra
+//   direccion. Google manda un codigo a esa direccion y alguien con acceso
+//   debe confirmarlo.
+//
+// Si se deja vacio, o si la direccion no es un alias valido, el correo sale
+// igual desde la cuenta que desplego el script (no se pierde ningun envio).
+var REMITENTE = '';                              // ej: 'apaeventos@apa.org.pe'
+
+// A donde van las respuestas si el destinatario pulsa "Responder".
+// Esto NO requiere alias ni configuracion: funciona desde ya.
+var RESPONDER_A = 'apaeventos@apa.org.pe';
+
+var NOMBRE_REMITENTE = 'AVEM 2027';
+
 // Logger.log existe en los dos runtimes de Apps Script (V8 y el antiguo Rhino).
 // console solo existe en V8, por eso no se usa directamente.
 function avisar(texto) {
@@ -173,10 +192,12 @@ function enviarConfirmacion(correo) {
   var opciones = {
     to: correo,
     subject: ASUNTO,
-    name: 'AVEM 2027',
+    name: NOMBRE_REMITENTE,
     body: textoPlano(),
     htmlBody: cuerpoHtml(true)
   };
+
+  if (RESPONDER_A) opciones.replyTo = RESPONDER_A;
 
   // El pie se incrusta como imagen inline (cid) para que se vea aunque el
   // cliente bloquee imagenes remotas. Si no se puede descargar, se envia sin el.
@@ -188,6 +209,23 @@ function enviarConfirmacion(correo) {
     opciones.htmlBody = cuerpoHtml(false);
   }
 
+  enviarConRemitente(opciones);
+}
+
+// Intenta enviar desde REMITENTE. Si Google lo rechaza porque no es un alias
+// verificado, reintenta desde la cuenta por defecto en vez de perder el envio.
+function enviarConRemitente(opciones) {
+  if (REMITENTE) {
+    try {
+      opciones.from = REMITENTE;
+      MailApp.sendEmail(opciones);
+      return;
+    } catch (err) {
+      avisar('No se pudo enviar como ' + REMITENTE + ' (revisa que sea alias verificado). ' +
+             'Se reenvia desde la cuenta por defecto. Detalle: ' + err);
+      delete opciones.from;
+    }
+  }
   MailApp.sendEmail(opciones);
 }
 
@@ -290,6 +328,8 @@ function diagnosticoCorreo() {
   try {
     log('2. Ejecutando como: ' + Session.getEffectiveUser().getEmail());
     log('   Cuota de correo restante hoy: ' + MailApp.getRemainingDailyQuota());
+    log('   Remitente configurado: ' + (REMITENTE || '(ninguno, sale desde la cuenta de arriba)'));
+    log('   Responder a: ' + (RESPONDER_A || '(sin configurar)'));
   } catch (e) {
     log('2. FALLO al leer cuenta/cuota: ' + e);
     log('   >> Suele significar que faltan permisos. Vuelve a autorizar el script.');
@@ -322,13 +362,15 @@ function diagnosticoCorreo() {
     var opciones = {
       to: CORREO_DE_PRUEBA,
       subject: 'AVEM 2027 - prueba 2 de 2 (correo real)',
-      name: 'AVEM 2027',
+      name: NOMBRE_REMITENTE,
       body: textoPlano(),
       htmlBody: cuerpoHtml(blob !== null)
     };
+    if (RESPONDER_A) opciones.replyTo = RESPONDER_A;
     if (blob) opciones.inlineImages = {footer: blob};
-    MailApp.sendEmail(opciones);
+    enviarConRemitente(opciones);
     log('5. Envio completo: OK (enviado)');
+    log('   Comprueba en el correo recibido que el remitente sea el esperado.');
   } catch (e) {
     log('5. FALLO en el envio completo: ' + e);
     return L.join('\n');
