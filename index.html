@@ -265,19 +265,31 @@
        por arriba: 57.07% del ancho es exactamente el alto de la imagen, asi
        que restarlo alinea su base con la del contenedor. El div interior
        conserva la caja completa, por lo que los % del ojo siguen validos. */
+    /* En desktop se sustituye el dibujo por pollo-desktop.png (1920x643), mucho
+       mas panoramico (ratio 0.33 frente a 0.57), asi que no hace falta recorte:
+       se muestra entero. Su fondo es blanco y no se puede volver transparente
+       —el cuerpo del pollo tambien es blanco y esta conectado con el fondo—,
+       de ahi que la seccion pase a blanco en desktop. */
+    .avem-scroll > section:nth-of-type(2) { background: #ffffff !important; }
     .avem-scroll > section:nth-of-type(2) > div:last-child {
-      height: 430px !important; margin-top: 0 !important;
+      height: auto !important; margin-top: 0 !important;
       /* escapa del padding de la seccion para ir a sangre de borde a borde */
       margin-left: calc(50% - 50vw) !important;
       margin-right: calc(50% - 50vw) !important;
     }
-    .avem-scroll > section:nth-of-type(2) > div:last-child > div { margin-top: calc(430px - 57.07%) !important; }
+    .avem-scroll > section:nth-of-type(2) > div:last-child > div { margin-top: 0 !important; }
+    .avem-scroll > section:nth-of-type(2) > div:last-child img { content: url("screenshots/pollo-desktop.png"); }
 
-    /* El ojo animado se dimensiona en px fijos (18 y 11), calibrados para el
-       marco de 440px. Al crecer la imagen dejaban de tapar el ojo del dibujo y
-       asomaba un halo. Se pasan a % del ancho de la imagen: 18/440 = 4.09%. */
-    .avem-scroll > section:nth-of-type(2) > div:last-child > div > span {
-      width: 4.09% !important; height: auto !important; aspect-ratio: 1 !important;
+    /* La mancha que tapaba un resto del dibujo movil no existe en esta version */
+    .avem-scroll > section:nth-of-type(2) > div:last-child > div > span:nth-of-type(1) { display: none !important; }
+
+    /* El ojo animado va en px fijos calibrados para el marco de 440px y en la
+       posicion del dibujo movil. Aqui se reubica sobre el ojo de la nueva
+       imagen —medido en el PNG: 83.21% / 44.45%, diametro 1.51% del ancho— y
+       se dimensiona en % para que escale con ella. */
+    .avem-scroll > section:nth-of-type(2) > div:last-child > div > span:nth-of-type(2) {
+      left: 83.21% !important; top: 44.45% !important;
+      width: 1.75% !important; height: auto !important; aspect-ratio: 1 !important;
     }
     /* :first-child limita la regla a la mascara blanca. Sin el, este selector
        tambien alcanzaba a .hen-eye y le ganaba por especificidad, dejando la
@@ -286,7 +298,7 @@
       width: 100% !important; height: auto !important; aspect-ratio: 1 !important;
     }
     .avem-scroll > section:nth-of-type(2) .hen-eye {
-      width: 61% !important; height: auto !important; aspect-ratio: 1 !important;
+      width: 86% !important; height: auto !important; aspect-ratio: 1 !important;
     }
 
     /* ---- 3. VIDEOS: los dos en fila ---- */
