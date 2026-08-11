@@ -45,8 +45,9 @@
 //   - Borra el codigo de ejemplo y pega desde "function doPost" hasta el final
 //
 // PASO 6: Desplegar como aplicacion web
-//   IMPORTANTE: hacerlo DESDE LA CUENTA DE APA (dominio apa.org.pe). La cuenta
-//   que despliega es la que acaba figurando como remitente de los correos.
+//   IMPORTANTE: hacerlo DESDE LA CUENTA avem.inscripciones@apa.org.pe, que es
+//   la que APA facilito para esto. La cuenta que despliega es la que acaba
+//   figurando como remitente de los correos.
 //   - Implementar > Nueva implementacion > Tipo: "Aplicacion web"
 //   - Ejecutar como: "Yo"  (es decir, la cuenta de APA)
 //   - Quien tiene acceso: "Cualquier persona"
@@ -82,8 +83,8 @@ var ASUNTO = 'Gracias por registrar tu interes en AVEM 2027';
 
 // ---- REMITENTE -------------------------------------------------------
 // EL REMITENTE LO DETERMINA LA CUENTA QUE DESPLIEGA EL SCRIPT, no esta
-// constante. Como ya hay acceso a una cuenta del dominio apa.org.pe, el script
-// debe desplegarse DESDE ESA CUENTA y esto puede quedarse vacio.
+// constante. APA facilito avem.inscripciones@apa.org.pe para este proyecto:
+// desplegando desde ella, los correos salen a su nombre y esto queda vacio.
 //
 // Por que es la mejor via, y no un alias:
 //   - El correo sale de servidores de Google autorizados por apa.org.pe (su
@@ -101,8 +102,11 @@ var ASUNTO = 'Gracias por registrar tu interes en AVEM 2027';
 var REMITENTE = '';
 
 // A donde van las respuestas si el destinatario pulsa "Responder".
-// Redundante si el script ya se ejecuta desde esta misma direccion, pero
-// inofensivo y util si se despliega desde otra cuenta del dominio.
+// Se deja en apaeventos@apa.org.pe, que es la direccion de contacto publicada
+// en el pie de la landing y la que el equipo de eventos ya atiende. El correo
+// sale de avem.inscripciones@ pero las respuestas caen en el buzon conocido.
+// Si se prefiere que lleguen a la propia cuenta de inscripciones, cambiar por
+// 'avem.inscripciones@apa.org.pe' o dejar vacio.
 var RESPONDER_A = 'apaeventos@apa.org.pe';
 
 var NOMBRE_REMITENTE = 'AVEM 2027';
