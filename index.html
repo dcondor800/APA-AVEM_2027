@@ -345,7 +345,10 @@
 
     /* ---- 5. ZONA FERIAL ---- */
     .avem-scroll > section:nth-of-type(5) { padding-top: 70px !important; padding-bottom: 76px !important; }
-    .avem-scroll > section:nth-of-type(5) > p { font-size: 19px !important; max-width: 760px; }
+    /* Dos lineas, cortando despues de "alrededor". Medido en el navegador:
+       hasta esa palabra ocupa 711px y con la siguiente pasa a 741, asi que el
+       corte cae ahi con cualquier ancho entre 711 y 740. Se toma 725. */
+    .avem-scroll > section:nth-of-type(5) > p { font-size: 19px !important; max-width: 725px; }
     /* el PNG del plano mide 1077px: pasado ese ancho se ampliaria y saldria borroso */
     .avem-scroll > section:nth-of-type(5) > button {
       max-width: 1080px; margin-left: auto !important; margin-right: auto !important;
@@ -602,11 +605,13 @@
     <h2 style="margin:10px 0 0; font-family:'alfarn-2','Objective','Poppins',sans-serif; font-size:clamp(16px, 5.2vw, 23px); font-weight:700; color:#ffffff; line-height:1.24;">Una distribución pensada<br>para conectar</h2>
     <p style="margin:14px 0 0; font-family:'Objective','Poppins',sans-serif; font-size:14px; font-weight:500; color:#ffffff; line-height:1.45;">La exposición integra las distintas categorías de participación alrededor de espacios que favorecen el recorrido, la visibilidad y el encuentro.</p>
 
-    <!-- recinto.png (1077x759) trae plano + leyenda. Aqui se usa solo el 92% superior
-         (el plano); la leyenda se rehizo en HTML abajo para que sea legible. -->
+    <!-- recinto-nuevo.png (1005x723) trae plano + leyenda. Aqui se recorta a la
+         altura de la banda vacia que los separa (filas 625-679), quedandose con
+         el plano: 652/1005 = 64.88% del ancho. La leyenda se rehizo en HTML
+         abajo, porque a este tamano la del PNG resultaba ilegible. -->
     <button onclick="{{ openPlano }}" style="display:block; width:100%; margin:20px 0 0; padding:0; border:0; background:none; cursor:zoom-in; position:relative; font:inherit; text-align:left;">
-      <span style="display:block; position:relative; padding-top:64.72%; overflow:hidden; border-radius:16px;">
-        <img src="screenshots/recinto.png" alt="Plano de distribución de la zona ferial" style="position:absolute; top:0; left:0; width:100%; height:auto; display:block;">
+      <span style="display:block; position:relative; padding-top:64.88%; overflow:hidden; border-radius:16px;">
+        <img src="screenshots/recinto-nuevo.png" alt="Plano de distribución de la zona ferial" style="position:absolute; top:0; left:0; width:100%; height:auto; display:block;">
       </span>
       <span style="position:absolute; right:11px; bottom:11px; display:inline-block; background:#5752A6; color:#ffffff; font-family:'Objective','Poppins',sans-serif; font-size:11px; font-weight:500; padding:7px 13px; border-radius:999px;">Ampliar plano</span>
     </button>
@@ -938,7 +943,7 @@
       <button onclick="{{ closePlano }}" aria-label="Cerrar plano" style="flex:none; width:38px; height:38px; border:none; border-radius:50%; background:rgba(255,255,255,.22); color:#fff; font-size:18px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;">✕</button>
     </div>
     <div id="plano-scroll" style="flex:1; overflow:auto; -webkit-overflow-scrolling:touch; display:flex;">
-      <img src="screenshots/recinto.png" alt="Plano de distribución de la zona ferial" style="display:block; width:1077px; max-width:none; height:auto; margin:auto; background:#fff; border-radius:10px;">
+      <img src="screenshots/recinto-nuevo.png" alt="Plano de distribución de la zona ferial" style="display:block; width:1005px; max-width:none; height:auto; margin:auto; background:#fff; border-radius:10px;">
     </div>
     <div style="flex:none; padding:10px 16px 16px;">
       <button onclick="{{ closePlano }}" style="display:block; width:100%; border:none; cursor:pointer; background:#F9B81C; color:#5752A6; font-family:'Objective','Poppins',sans-serif; font-size:15px; font-weight:700; padding:13px; border-radius:12px;">Cerrar</button>
