@@ -258,7 +258,7 @@
     /* 2x2: se acota el ancho para que las tarjetas no queden desproporcionadas
        de anchas en pantallas grandes */
     /* el padding inferior deja sitio al lazo que baja por debajo de la fila 2 */
-    .avem-pilares { margin-top: 54px !important; padding-bottom: 46px !important; max-width: 960px; }
+    .avem-pilares { margin-top: 54px !important; padding-bottom: 46px !important; max-width: 634px; }
     /* los huecos suben a 56px para dar longitud legible a los conectores */
     .avem-pilares > div { grid-template-columns: repeat(2, 1fr) !important; column-gap: 56px !important; row-gap: 56px !important; }
     .avem-pilares img { width: 64px !important; height: 64px !important; }
@@ -451,11 +451,11 @@
              viewBox de 960x358, que son las medidas reales de la caja en desktop,
              asi que la escala es 1:1 y no hay deformacion.
              Oculto por defecto; solo se muestra dentro del @media. -->
-        <svg class="avem-conn-desktop" viewBox="0 0 960 358" preserveAspectRatio="none" aria-hidden="true" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none;">
+        <svg class="avem-conn-desktop" viewBox="0 0 634 390" preserveAspectRatio="none" aria-hidden="true" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none;">
           <g fill="none" stroke="#5752A6" stroke-width="2" stroke-dasharray="7 7" stroke-linecap="round">
-            <path d="M16 68 V128 Q16 140 28 140 H468 Q480 140 480 128 V32 Q480 20 492 20 H520"/>
-            <path d="M576 18 H768 Q780 18 780 30 V143 Q780 155 768 155 H542 Q530 155 530 167 V182"/>
-            <path d="M16 244 V334 Q16 346 28 346 H468 Q480 346 480 334 V210 Q480 198 492 198 H520"/>
+            <path d="M16 68 V152 Q16 164 28 164 H305 Q317 164 317 152 V32 Q317 20 329 20 H357"/>
+            <path d="M413 16 H508 Q520 16 520 28 V164 Q520 176 508 176 H383 Q371 176 371 188 V198"/>
+            <path d="M16 260 V354 Q16 366 28 366 H305 Q317 366 317 354 V236 Q317 224 329 224 H357"/>
           </g>
         </svg>
 
