@@ -248,7 +248,8 @@
     .avem-scroll > section:nth-of-type(2) h2 { max-width: 760px; }
 
     /* ---- 2. PILARES + ilustracion ---- */
-    .avem-scroll > section:nth-of-type(2) > div:first-child { padding: 76px 70px 0 !important; }
+    /* el padding inferior deja pasar las lomas del dibujo por debajo del contenido */
+    .avem-scroll > section:nth-of-type(2) > div:first-child { padding: 76px 70px 190px !important; }
     .avem-scroll > section:nth-of-type(2) > div:first-child > p:nth-of-type(1) { font-size: 14px !important; }
     .avem-scroll > section:nth-of-type(2) > div:first-child > p:nth-of-type(2) { font-size: 19px !important; max-width: 720px; margin-top: 22px !important; }
     /* Se cambia el SVG de movil por el de escritorio */
@@ -269,20 +270,28 @@
        por arriba: 57.07% del ancho es exactamente el alto de la imagen, asi
        que restarlo alinea su base con la del contenedor. El div interior
        conserva la caja completa, por lo que los % del ojo siguen validos. */
-    /* En desktop se sustituye el dibujo por pollo-desktop.png (1920x643), mucho
-       mas panoramico (ratio 0.33 frente a 0.57), asi que no hace falta recorte:
-       se muestra entero. Su fondo es blanco y no se puede volver transparente
-       —el cuerpo del pollo tambien es blanco y esta conectado con el fondo—,
-       de ahi que la seccion pase a blanco en desktop. */
-    .avem-scroll > section:nth-of-type(2) { background: #ffffff !important; }
+    /* En desktop se sustituye el dibujo por pollo-nuevo.png (1920x643), mucho
+       mas panoramico (ratio 0.33 frente a 0.57), asi que se muestra entero sin
+       recorte. Su fondo es blanco y no se puede volver transparente —el cuerpo
+       del pollo tambien es blanco y esta conectado con el fondo—, de ahi que la
+       seccion pase a blanco en desktop. */
+    .avem-scroll > section:nth-of-type(2) {
+      background: #ffffff !important;
+      position: relative; overflow: hidden;
+      padding-bottom: 0 !important;
+    }
+    /* La ilustracion deja de ser un bloque debajo de las tarjetas y pasa a ser
+       una capa de fondo anclada al pie: asi el contenido se apoya sobre ella y
+       desaparece la franja blanca que quedaba entre ambos. Posicionada en
+       absoluto con left/right a 0 ya va a sangre, sin los margenes negativos. */
+    .avem-scroll > section:nth-of-type(2) > div:first-child { position: relative; z-index: 1; }
     .avem-scroll > section:nth-of-type(2) > div:last-child {
-      height: auto !important; margin-top: 0 !important;
-      /* escapa del padding de la seccion para ir a sangre de borde a borde */
-      margin-left: calc(50% - 50vw) !important;
-      margin-right: calc(50% - 50vw) !important;
+      position: absolute !important; z-index: 0;
+      left: 0 !important; right: 0 !important; bottom: 0 !important;
+      width: auto !important; height: auto !important; margin: 0 !important;
     }
     .avem-scroll > section:nth-of-type(2) > div:last-child > div { margin-top: 0 !important; }
-    .avem-scroll > section:nth-of-type(2) > div:last-child img { content: url("screenshots/pollo-desktop.png"); }
+    .avem-scroll > section:nth-of-type(2) > div:last-child img { content: url("screenshots/pollo-nuevo.png"); }
 
     /* La mancha que tapaba un resto del dibujo movil no existe en esta version */
     .avem-scroll > section:nth-of-type(2) > div:last-child > div > span:nth-of-type(1) { display: none !important; }
