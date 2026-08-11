@@ -45,11 +45,15 @@
 //   - Borra el codigo de ejemplo y pega desde "function doPost" hasta el final
 //
 // PASO 6: Desplegar como aplicacion web
+//   IMPORTANTE: hacerlo DESDE LA CUENTA DE APA (dominio apa.org.pe). La cuenta
+//   que despliega es la que acaba figurando como remitente de los correos.
 //   - Implementar > Nueva implementacion > Tipo: "Aplicacion web"
-//   - Ejecutar como: "Yo"
+//   - Ejecutar como: "Yo"  (es decir, la cuenta de APA)
 //   - Quien tiene acceso: "Cualquier persona"
 //   - Implementar y autorizar los permisos que pida
 //     (ahora pedira tambien permiso para ENVIAR CORREO en tu nombre)
+//   Para comprobarlo despues: ejecutar diagnosticoCorreo(), que avisa si la
+//   cuenta no pertenece al dominio del cliente.
 //
 // PASO 7: Copiar la URL y pegarla en la landing
 //   - Copia la URL https://script.google.com/macros/s/.../exec
@@ -77,37 +81,28 @@ var FOOTER_URL = 'https://dcondor800.github.io/APA-AVEM_2027/screenshots/email-f
 var ASUNTO = 'Gracias por registrar tu interes en AVEM 2027';
 
 // ---- REMITENTE -------------------------------------------------------
-// Direccion desde la que salen los correos.
+// EL REMITENTE LO DETERMINA LA CUENTA QUE DESPLIEGA EL SCRIPT, no esta
+// constante. Como ya hay acceso a una cuenta del dominio apa.org.pe, el script
+// debe desplegarse DESDE ESA CUENTA y esto puede quedarse vacio.
 //
-// OJO: Apps Script NO puede conectarse a un servidor SMTP. No tiene API de
-// sockets; UrlFetchApp solo hace HTTP/HTTPS. Por eso aqui no se ponen host,
-// puerto ni contrasena de aplicacion: eso va en la configuracion de Gmail.
+// Por que es la mejor via, y no un alias:
+//   - El correo sale de servidores de Google autorizados por apa.org.pe (su
+//     SPF incluye _spf.google.com y su MX es smtp.google.com), asi que SPF y
+//     DKIM alinean de forma nativa y el correo pasa DMARC.
+//   - No aparece la anotacion "enviado por / via gmail.com".
+//   - La cuota diaria sube de ~100 correos (Gmail gratuito) a ~1500
+//     (Google Workspace, que es lo que usa APA).
 //
-// Google solo acepta esta direccion si es un ALIAS VERIFICADO de la cuenta
-// que ejecuta el script. Para darla de alta:
-//
-//   Gmail > Configuracion > Cuentas e importacion > "Enviar como"
-//         > Anadir otra direccion de correo
-//
-//   1. Escribe la direccion (ej. apaeventos@apa.org.pe)
-//   2. Desmarca "Tratar como un alias"
-//   3. Servidor SMTP del cliente + puerto 587 (TLS)
-//      Usuario: la direccion completa
-//      Contrasena: la contrasena de aplicacion del cliente
-//      (16 caracteres en 4 grupos, ej. "jiab sppf msnh bfqm";
-//       requiere verificacion en 2 pasos activa en esa cuenta)
-//   4. Google envia un codigo a esa direccion; alguien con acceso lo confirma
-//
-// Enviar a traves del SMTP del cliente es lo recomendable: el correo se
-// relaya por su servidor, asi SPF y DKIM alinean con su dominio y no hay
-// problemas de DMARC ni de reputacion.
-//
-// Si se deja vacio, o si la direccion no es un alias valido, el correo sale
-// igual desde la cuenta que desplego el script (no se pierde ningun envio).
-var REMITENTE = '';                              // ej: 'apaeventos@apa.org.pe'
+// Solo hay que rellenar esta constante si se quiere que el remitente visible
+// sea DISTINTO de la cuenta que ejecuta el script; en ese caso la direccion
+// tiene que ser un alias verificado de esa cuenta ("Enviar como" en Gmail).
+// Si se rellena con una direccion no valida, enviarConRemitente() reintenta
+// desde la cuenta por defecto y no se pierde ningun envio.
+var REMITENTE = '';
 
 // A donde van las respuestas si el destinatario pulsa "Responder".
-// Esto NO requiere alias ni configuracion: funciona desde ya.
+// Redundante si el script ya se ejecuta desde esta misma direccion, pero
+// inofensivo y util si se despliega desde otra cuenta del dominio.
 var RESPONDER_A = 'apaeventos@apa.org.pe';
 
 var NOMBRE_REMITENTE = 'AVEM 2027';
@@ -229,21 +224,24 @@ function enviarConfirmacion(correo) {
   enviarConRemitente(opciones);
 }
 
-// Intenta enviar desde REMITENTE. Si Google lo rechaza porque no es un alias
-// verificado, reintenta desde la cuenta por defecto en vez de perder el envio.
+// Envia el correo y devuelve la direccion desde la que acabo saliendo, para que
+// el diagnostico pueda confirmarlo sin tener que abrir la bandeja de entrada.
+// Si REMITENTE esta vacio, sale de la cuenta que ejecuta el script.
 function enviarConRemitente(opciones) {
   if (REMITENTE) {
     try {
       opciones.from = REMITENTE;
       MailApp.sendEmail(opciones);
-      return;
+      return REMITENTE;
     } catch (err) {
-      avisar('No se pudo enviar como ' + REMITENTE + ' (revisa que sea alias verificado). ' +
-             'Se reenvia desde la cuenta por defecto. Detalle: ' + err);
+      avisar('No se pudo enviar como ' + REMITENTE + ' (revisa que sea alias verificado ' +
+             'de la cuenta que ejecuta el script). Se reenvia desde la cuenta por ' +
+             'defecto. Detalle: ' + err);
       delete opciones.from;
     }
   }
   MailApp.sendEmail(opciones);
+  return Session.getEffectiveUser().getEmail();
 }
 
 function cuerpoHtml(conFooter) {
@@ -343,10 +341,24 @@ function diagnosticoCorreo() {
 
   // 2. Cuenta y cuota
   try {
-    log('2. Ejecutando como: ' + Session.getEffectiveUser().getEmail());
-    log('   Cuota de correo restante hoy: ' + MailApp.getRemainingDailyQuota());
+    var cuenta = Session.getEffectiveUser().getEmail();
+    var cuota = MailApp.getRemainingDailyQuota();
+    log('2. Ejecutando como: ' + cuenta);
+    log('   Cuota de correo restante hoy: ' + cuota);
     log('   Remitente configurado: ' + (REMITENTE || '(ninguno, sale desde la cuenta de arriba)'));
     log('   Responder a: ' + (RESPONDER_A || '(sin configurar)'));
+    // El fallo tipico es desplegar desde la cuenta equivocada; se avisa aqui.
+    if (cuenta.indexOf('@apa.org.pe') === -1) {
+      log('   >> AVISO: esta cuenta NO es del dominio apa.org.pe.');
+      log('      Los correos saldran a su nombre, con anotacion "via gmail.com",');
+      log('      sin alinear DMARC y con la cuota reducida. Vuelve a desplegar');
+      log('      el script desde la cuenta de APA.');
+    } else {
+      log('   >> Cuenta del dominio del cliente: correcto.');
+      if (cuota < 500) {
+        log('      Ojo: la cuota sugiere que no es una cuenta Workspace de pago.');
+      }
+    }
   } catch (e) {
     log('2. FALLO al leer cuenta/cuota: ' + e);
     log('   >> Suele significar que faltan permisos. Vuelve a autorizar el script.');
@@ -385,9 +397,9 @@ function diagnosticoCorreo() {
     };
     if (RESPONDER_A) opciones.replyTo = RESPONDER_A;
     if (blob) opciones.inlineImages = {footer: blob};
-    enviarConRemitente(opciones);
+    var usado = enviarConRemitente(opciones);
     log('5. Envio completo: OK (enviado)');
-    log('   Comprueba en el correo recibido que el remitente sea el esperado.');
+    log('   Salio desde: ' + usado);
   } catch (e) {
     log('5. FALLO en el envio completo: ' + e);
     return L.join('\n');
