@@ -251,8 +251,11 @@
     /* el padding inferior deja pasar las lomas del dibujo por debajo del contenido */
     .avem-scroll > section:nth-of-type(2) > div:first-child { padding: 76px 70px 190px !important; }
     .avem-scroll > section:nth-of-type(2) > div:first-child > p:nth-of-type(1) { font-size: 14px !important; }
-    /* se ensancha para que quepa en dos lineas en vez de tres */
-    .avem-scroll > section:nth-of-type(2) > div:first-child > p:nth-of-type(2) { font-size: 19px !important; max-width: 1160px; margin-top: 22px !important; }
+    /* Dos lineas, cortando despues de "instituciones". Medido en el navegador:
+       hasta esa palabra el texto ocupa 921px y con la siguiente ("en") pasa a
+       951, asi que el corte cae ahi con cualquier ancho entre 922 y 949. Se
+       toma 935 para dejar margen a ambos lados. */
+    .avem-scroll > section:nth-of-type(2) > div:first-child > p:nth-of-type(2) { font-size: 19px !important; max-width: 935px; margin-top: 22px !important; }
     /* Se cambia el SVG de movil por el de escritorio */
     .avem-pilares > svg:first-of-type { display: none !important; }
     .avem-conn-desktop { display: block !important; }
