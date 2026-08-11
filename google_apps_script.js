@@ -79,34 +79,32 @@ var ASUNTO = 'Gracias por registrar tu interes en AVEM 2027';
 // ---- REMITENTE -------------------------------------------------------
 // Direccion desde la que salen los correos.
 //
-// Google solo acepta esta direccion si es un ALIAS VERIFICADO de la cuenta que
-// ejecuta el script. Darla de alta requiere UN codigo de 6 digitos que Google
-// envia a esa direccion; basta con que alguien de APA lo reenvie una vez.
+// OJO: Apps Script NO puede conectarse a un servidor SMTP. No tiene API de
+// sockets; UrlFetchApp solo hace HTTP/HTTPS. Por eso aqui no se ponen host,
+// puerto ni contrasena de aplicacion: eso va en la configuracion de Gmail.
 //
-//   En la cuenta de Google QUE DESPLEGO ESTE SCRIPT:
+// Google solo acepta esta direccion si es un ALIAS VERIFICADO de la cuenta
+// que ejecuta el script. Para darla de alta:
+//
 //   Gmail > Configuracion > Cuentas e importacion > "Enviar como"
 //         > Anadir otra direccion de correo
 //
-//   1. Nombre: AVEM 2027   Direccion: apaeventos@apa.org.pe
-//   2. DESMARCAR "Tratar como un alias" (se envia en nombre de otra entidad)
-//   3. Elegir "Enviar a traves de Gmail", NO la opcion de SMTP: esa exigiria
-//      credenciales de APA. Apps Script tampoco puede hablar SMTP por su
-//      cuenta (no tiene sockets; UrlFetchApp solo hace HTTP/HTTPS).
-//   4. Google manda el codigo a apaeventos@apa.org.pe -> pedirlo a APA
+//   1. Escribe la direccion (ej. apaeventos@apa.org.pe)
+//   2. Desmarca "Tratar como un alias"
+//   3. Servidor SMTP del cliente + puerto 587 (TLS)
+//      Usuario: la direccion completa
+//      Contrasena: la contrasena de aplicacion del cliente
+//      (16 caracteres en 4 grupos, ej. "jiab sppf msnh bfqm";
+//       requiere verificacion en 2 pasos activa en esa cuenta)
+//   4. Google envia un codigo a esa direccion; alguien con acceso lo confirma
 //
-// Esta constante puede quedar puesta ANTES de verificar el alias: mientras no
-// lo este, enviarConRemitente() reintenta desde la cuenta por defecto y deja
-// aviso en el registro, sin perder ningun envio. En cuanto se verifique el
-// alias los correos empiezan a salir como APA sin volver a desplegar.
+// Enviar a traves del SMTP del cliente es lo recomendable: el correo se
+// relaya por su servidor, asi SPF y DKIM alinean con su dominio y no hay
+// problemas de DMARC ni de reputacion.
 //
-// LIMITACIONES CONOCIDAS de esta via (asumidas a proposito):
-//   - Gmail anadira "enviado por / via gmail.com" junto al remitente.
-//   - El correo NO alineara DMARC: Google firma con su dominio, no con
-//     apa.org.pe. Hoy es inofensivo porque apa.org.pe publica
-//     "v=DMARC1; p=none". Si APA endurece su DMARC a quarantine o reject,
-//     estos correos empezaran a caer en spam o a rebotar SIN AVISO.
-//   - La cuota diaria no cambia: la impone la cuenta que ejecuta el script.
-var REMITENTE = 'apaeventos@apa.org.pe';
+// Si se deja vacio, o si la direccion no es un alias valido, el correo sale
+// igual desde la cuenta que desplego el script (no se pierde ningun envio).
+var REMITENTE = '';                              // ej: 'apaeventos@apa.org.pe'
 
 // A donde van las respuestas si el destinatario pulsa "Responder".
 // Esto NO requiere alias ni configuracion: funciona desde ya.
@@ -231,25 +229,21 @@ function enviarConfirmacion(correo) {
   enviarConRemitente(opciones);
 }
 
-// Intenta enviar desde REMITENTE. Si Google lo rechaza porque el alias aun no
-// esta verificado, reintenta desde la cuenta por defecto en vez de perder el
-// envio. Devuelve que remitente acabo usandose, para que el diagnostico pueda
-// informar de si la verificacion ya surtio efecto.
+// Intenta enviar desde REMITENTE. Si Google lo rechaza porque no es un alias
+// verificado, reintenta desde la cuenta por defecto en vez de perder el envio.
 function enviarConRemitente(opciones) {
   if (REMITENTE) {
     try {
       opciones.from = REMITENTE;
       MailApp.sendEmail(opciones);
-      return REMITENTE;
+      return;
     } catch (err) {
-      avisar('Todavia no se puede enviar como ' + REMITENTE + ': el alias no esta ' +
-             'verificado en la cuenta que ejecuta el script. Se reenvia desde la ' +
-             'cuenta por defecto. Detalle: ' + err);
+      avisar('No se pudo enviar como ' + REMITENTE + ' (revisa que sea alias verificado). ' +
+             'Se reenvia desde la cuenta por defecto. Detalle: ' + err);
       delete opciones.from;
     }
   }
   MailApp.sendEmail(opciones);
-  return Session.getEffectiveUser().getEmail();
 }
 
 function cuerpoHtml(conFooter) {
@@ -391,17 +385,9 @@ function diagnosticoCorreo() {
     };
     if (RESPONDER_A) opciones.replyTo = RESPONDER_A;
     if (blob) opciones.inlineImages = {footer: blob};
-    var usado = enviarConRemitente(opciones);
+    enviarConRemitente(opciones);
     log('5. Envio completo: OK (enviado)');
-    log('   Salio desde: ' + usado);
-    if (REMITENTE && usado === REMITENTE) {
-      log('   >> ALIAS VERIFICADO: los correos ya salen a nombre de APA.');
-    } else if (REMITENTE) {
-      log('   >> El alias ' + REMITENTE + ' AUN NO esta verificado.');
-      log('      Anadelo en Gmail > Configuracion > Cuentas e importacion >');
-      log('      "Enviar como", y pide a APA el codigo de 6 digitos que Google');
-      log('      enviara a esa direccion. No hace falta volver a desplegar.');
-    }
+    log('   Comprueba en el correo recibido que el remitente sea el esperado.');
   } catch (e) {
     log('5. FALLO en el envio completo: ' + e);
     return L.join('\n');
