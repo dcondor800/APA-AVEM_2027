@@ -140,6 +140,12 @@ var RESPONDER_A = 'apaeventos@apa.org.pe';
 
 var NOMBRE_REMITENTE = 'AVEM 2027';
 
+// ---- PRUEBAS ---------------------------------------------------------
+// Direccion a la que diagnosticoCorreo() envia los correos de prueba.
+// Solo se usa al ejecutar el diagnostico a mano; no interviene en los
+// registros reales del formulario.
+var CORREO_DE_PRUEBA = 'CAMBIAME@ejemplo.com';
+
 // Logger.log existe en los dos runtimes de Apps Script (V8 y el antiguo Rhino).
 // console solo existe en V8, por eso no se usa directamente.
 function avisar(texto) {
@@ -348,14 +354,11 @@ function doGet(e) {
 // ============================================================
 // DIAGNOSTICO
 // ============================================================
-// Cambia la direccion de abajo por la tuya, selecciona
-// diagnosticoCorreo en el desplegable de arriba y pulsa Ejecutar.
-// Despues abre "Registro de ejecucion" para ver el resultado de
-// cada paso. Cada paso dice OK o FALLO con el motivo.
+// Rellena CORREO_DE_PRUEBA arriba, en el bloque de configuracion,
+// selecciona diagnosticoCorreo en el desplegable de la barra
+// superior y pulsa Ejecutar. Despues abre "Registro de ejecucion":
+// cada paso dice OK o FALLO con el motivo.
 // ============================================================
-
-// Cambia SOLO esta linea por tu direccion.
-var CORREO_DE_PRUEBA = 'CAMBIAME@ejemplo.com';
 
 function diagnosticoCorreo() {
   var L = [];
