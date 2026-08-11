@@ -8,9 +8,11 @@
 //   3. Envia un correo de confirmacion a la persona que se registro
 //
 // ------------------------------------------------------------
-// PASO 1: Crear la hoja de calculo
-//   - Ve a https://sheets.google.com
-//   - Crea una nueva hoja y nombrala: "AVEM 2027 Registros"
+// PASO 1: La hoja de calculo
+//   Ya existe: "INTERES INSCRIPCION AVEM 2027", en la cuenta de David, y
+//   contiene registros reales. Su ID esta abajo en SHEET_ID.
+//   (Si alguna vez hubiera que rehacerla desde cero: hoja nueva en
+//    https://sheets.google.com con las pestanas y encabezados de abajo.)
 //
 // PASO 2: Crear las pestanas
 //   - Renombra "Hoja 1" a: Asistente
