@@ -224,7 +224,7 @@ function doPost(e) {
     // El correo va despues de guardar y en su propio try/catch:
     // si falla el envio, el registro ya quedo a salvo en la hoja.
     try {
-      enviarConfirmacion(data.correo);
+      enviarConfirmacion(data.correo, data.nombre);
     } catch (errMail) {
       avisar('Fallo el correo de confirmacion a ' + data.correo + ': ' + errMail);
     }
@@ -238,7 +238,7 @@ function doPost(e) {
   }
 }
 
-function enviarConfirmacion(correo) {
+function enviarConfirmacion(correo, nombre) {
   if (!correo) return;
   correo = String(correo).trim();
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(correo)) {
@@ -254,8 +254,8 @@ function enviarConfirmacion(correo) {
     to: correo,
     subject: ASUNTO,
     name: NOMBRE_REMITENTE,
-    body: textoPlano(),
-    htmlBody: cuerpoHtml(true)
+    body: textoPlano(nombre),
+    htmlBody: cuerpoHtml(true, nombre)
   };
 
   if (RESPONDER_A) opciones.replyTo = RESPONDER_A;
@@ -267,7 +267,7 @@ function enviarConfirmacion(correo) {
     opciones.inlineImages = {footer: blob};
   } catch (errImg) {
     avisar('No se pudo cargar el pie de pagina, se envia sin imagen: ' + errImg);
-    opciones.htmlBody = cuerpoHtml(false);
+    opciones.htmlBody = cuerpoHtml(false, nombre);
   }
 
   enviarConRemitente(opciones);
@@ -293,53 +293,51 @@ function enviarConRemitente(opciones) {
   return Session.getEffectiveUser().getEmail();
 }
 
-function cuerpoHtml(conFooter) {
+// El nombre viene del formulario, asi que se escapa antes de meterlo en el
+// HTML del correo: sin esto, alguien podria inyectar etiquetas escribiendolas
+// en el campo Nombre.
+function escapar(t) {
+  return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                  .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// Estructura deliberadamente sencilla: sin fondo de pagina, sin tarjeta
+// redondeada y sin tablas anidadas. Esa envoltura es el patron tipico de las
+// plantillas de marketing y era una de las razones de que Gmail lo mandara a
+// Promociones. Aqui se parece a un correo escrito por una persona.
+function cuerpoHtml(conFooter, nombre) {
   var MORADO = '#5752A6';
   var NAVY = '#2E2C6E';
+  var P = 'margin:0 0 14px; color:' + MORADO + '; font-size:15px; line-height:1.6;';
+
+  // Solo el primer nombre: "Estimado/a Juan:" suena a persona,
+  // "Estimado/a Juan Carlos Perez Lopez:" suena a base de datos.
+  var pila = String(nombre || '').trim().split(/\s+/)[0];
+  var saludo = pila ? 'Estimado/a ' + escapar(pila) + ':' : 'Estimado/a participante:';
 
   var pie = conFooter
     ? '<img src="cid:footer" width="600" alt="AVEM 2027 - Asociacion Peruana de Avicultura"' +
-      ' style="display:block; width:100%; max-width:600px; height:auto; border:0; outline:none; text-decoration:none;">'
+      ' style="display:block; width:100%; max-width:600px; height:auto; border:0; margin-top:26px;">'
     : '';
 
-  var vinieta = function (texto) {
-    return '<tr>' +
-      '<td valign="top" style="width:18px; padding:0 0 10px; color:' + MORADO + '; font-size:15px; line-height:1.55;">&bull;</td>' +
-      '<td style="padding:0 0 10px; color:' + MORADO + '; font-size:15px; line-height:1.55;">' + texto + '</td>' +
-      '</tr>';
-  };
-
   return '' +
-  '<!DOCTYPE html><html><body style="margin:0; padding:0; background:#f4f4f6;">' +
-  '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f4f6;">' +
-  '<tr><td align="center" style="padding:24px 12px;">' +
-  '<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0"' +
-  ' style="width:100%; max-width:600px; background:#ffffff; border-radius:14px; overflow:hidden;' +
-  ' font-family:Poppins, Helvetica, Arial, sans-serif;">' +
+  '<!DOCTYPE html><html><body style="margin:0; padding:0; background:#ffffff;">' +
+  '<div style="max-width:600px; padding:16px; font-family:Poppins, Helvetica, Arial, sans-serif;">' +
 
-  '<tr><td style="padding:34px 34px 8px;">' +
-  '<p style="margin:0 0 16px; color:' + NAVY + '; font-size:16px; font-weight:700; line-height:1.5;">Estimado/a participante:</p>' +
-  '<p style="margin:0 0 14px; color:' + MORADO + '; font-size:15px; line-height:1.55;">' +
-  'Gracias por registrar tu inter&eacute;s en formar parte del Congreso de Avicultura AVEM 2027.</p>' +
-  '<p style="margin:0 0 14px; color:' + MORADO + '; font-size:15px; line-height:1.55;">' +
-  'Una vez culminada esta etapa, te enviaremos informaci&oacute;n de acuerdo con la modalidad de participaci&oacute;n que hayas seleccionado:</p>' +
+  '<p style="margin:0 0 16px; color:' + NAVY + '; font-size:16px; font-weight:700; line-height:1.5;">' + saludo + '</p>' +
+  '<p style="' + P + '">Gracias por registrar tu inter&eacute;s en formar parte del Congreso de Avicultura AVEM 2027.</p>' +
+  '<p style="' + P + '">Una vez culminada esta etapa, te enviaremos informaci&oacute;n de acuerdo con la modalidad de participaci&oacute;n que hayas seleccionado:</p>' +
+  '<p style="' + P + ' padding-left:16px;">&bull; Si registraste tu inter&eacute;s como <strong>empresa</strong>, recibir&aacute;s el plano final de la zona de exposici&oacute;n y los precios correspondientes a las diferentes categor&iacute;as de participaci&oacute;n.</p>' +
+  '<p style="' + P + ' padding-left:16px;">&bull; Si registraste tu inter&eacute;s como <strong>asistente</strong>, ser&aacute;s de los primeros en conocer las tarifas de inscripci&oacute;n al evento.</p>' +
+  '<p style="' + P + '">Esperamos contar contigo en AVEM 2027.</p>' +
 
-  '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%; margin:0 0 4px;">' +
-  vinieta('Si registraste tu inter&eacute;s como <strong>empresa</strong>, recibir&aacute;s el plano final de la zona de exposici&oacute;n y los precios correspondientes a las diferentes categor&iacute;as de participaci&oacute;n.') +
-  vinieta('Si registraste tu inter&eacute;s como <strong>asistente</strong>, ser&aacute;s de los primeros en conocer las tarifas de inscripci&oacute;n al evento.') +
-  '</table>' +
-
-  '<p style="margin:14px 0 30px; color:' + MORADO + '; font-size:15px; line-height:1.55;">' +
-  'Esperamos contar contigo en AVEM 2027.</p>' +
-  '</td></tr>' +
-
-  '<tr><td style="padding:0; font-size:0; line-height:0;">' + pie + '</td></tr>' +
-
-  '</table></td></tr></table></body></html>';
+  pie +
+  '</div></body></html>';
 }
 
-function textoPlano() {
-  return 'Estimado/a participante:\n\n' +
+function textoPlano(nombre) {
+  var pila = String(nombre || '').trim().split(/\s+/)[0];
+  return 'Estimado/a ' + (pila || 'participante') + ':\n\n' +
     'Gracias por registrar tu interes en formar parte del Congreso de Avicultura AVEM 2027.\n\n' +
     'Una vez culminada esta etapa, te enviaremos informacion de acuerdo con la modalidad ' +
     'de participacion que hayas seleccionado:\n\n' +
