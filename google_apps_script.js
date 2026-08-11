@@ -105,7 +105,7 @@
 //
 // Si se deja vacio, el script asume que esta contenido en la hoja y usa
 // getActiveSpreadsheet(), como antes.
-var SHEET_ID = '';
+var SHEET_ID = '1kc7vNzGQJoemRef3RzIOaJ1dwM8G_xCQmWjSjXZv6QI';
 
 var FOOTER_URL = 'https://dcondor800.github.io/APA-AVEM_2027/screenshots/email-footer.png';
 var ASUNTO = 'Gracias por registrar tu interes en AVEM 2027';
