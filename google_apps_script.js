@@ -40,9 +40,22 @@
 //   I1: Acepto Datos
 //   J1: Nuevos formatos de contenido
 //
-// PASO 5: Pegar este codigo
-//   - Dentro de la hoja: Extensiones > Apps Script
-//   - Borra el codigo de ejemplo y pega desde "function doPost" hasta el final
+// PASO 5: Compartir la hoja y crear el script INDEPENDIENTE
+//   La hoja vive en la cuenta de David y el script tiene que ejecutarse desde
+//   la de APA, para que los correos salgan del dominio del cliente. Como no
+//   pueden estar en la misma cuenta, el script NO va contenido en la hoja
+//   (nada de Extensiones > Apps Script): va suelto y la abre por ID.
+//
+//   5a. Desde la cuenta de David: compartir la hoja con
+//       avem.inscripciones@apa.org.pe con permiso de EDITOR.
+//   5b. Copiar el ID de la hoja de su URL y pegarlo arriba en SHEET_ID.
+//   5c. Entrar en https://script.google.com CON LA CUENTA DE APA
+//       > Nuevo proyecto, y pegar este codigo entero.
+//
+//   Alternativa descartada: transferir la propiedad de la hoja a APA. Google
+//   suele bloquear las transferencias entre organizaciones distintas, y
+//   copiarla duplicaria la fuente de datos y dejaria atras los registros ya
+//   guardados.
 //
 // PASO 6: Desplegar como aplicacion web
 //   IMPORTANTE: hacerlo DESDE LA CUENTA avem.inscripciones@apa.org.pe, que es
@@ -77,6 +90,22 @@
 //     guardando pero el correo no sale.
 //   - El remitente sera la cuenta de Google que despliega el script.
 // ============================================================
+
+// ---- HOJA DE CALCULO -------------------------------------------------
+// ID de la hoja. Se saca de su URL, entre /d/ y /edit:
+//   https://docs.google.com/spreadsheets/d/ESTE_TROZO_ES_EL_ID/edit
+//
+// Hace falta porque la hoja y el script viven en cuentas distintas: la hoja
+// esta en la cuenta de David y el script se ejecuta desde la de APA, para que
+// los correos salgan del dominio del cliente. Al no ser un script contenido en
+// la hoja, getActiveSpreadsheet() devolveria null y hay que abrirla por ID.
+//
+// Requisito: la hoja debe estar COMPARTIDA CON avem.inscripciones@apa.org.pe
+// con permiso de Editor, o el script no podra escribir en ella.
+//
+// Si se deja vacio, el script asume que esta contenido en la hoja y usa
+// getActiveSpreadsheet(), como antes.
+var SHEET_ID = '';
 
 var FOOTER_URL = 'https://dcondor800.github.io/APA-AVEM_2027/screenshots/email-footer.png';
 var ASUNTO = 'Gracias por registrar tu interes en AVEM 2027';
@@ -117,10 +146,16 @@ function avisar(texto) {
   try { Logger.log(texto); } catch (e) {}
 }
 
+// Abre la hoja por ID cuando el script es independiente, o la activa cuando
+// esta contenido en ella.
+function abrirHoja() {
+  return SHEET_ID ? SpreadsheetApp.openById(SHEET_ID) : SpreadsheetApp.getActiveSpreadsheet();
+}
+
 function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var ss = abrirHoja();
     var sheet = ss.getSheetByName(data.tipo);
 
     if (!sheet) {
@@ -369,28 +404,59 @@ function diagnosticoCorreo() {
     return L.join('\n');
   }
 
-  // 3. Envio minimo, sin HTML ni imagen: aisla si el problema es MailApp
+  // 3. Acceso a la hoja. Con el script separado de la hoja, que falte el
+  //    permiso de Editor es el fallo mas probable, y romperia los registros
+  //    sin dar ninguna senal en la landing.
   try {
-    MailApp.sendEmail(CORREO_DE_PRUEBA, 'AVEM 2027 - prueba 1 de 2 (texto simple)',
-      'Si recibes este mensaje, MailApp funciona correctamente.');
-    log('3. Envio simple: OK (enviado)');
+    var ss = abrirHoja();
+    log('3. Hoja: "' + ss.getName() + '" (' + (SHEET_ID ? 'abierta por ID' : 'contenedora') + ')');
+    var faltan = [];
+    ['Asistente', 'Empresa'].forEach(function (n) {
+      var h = ss.getSheetByName(n);
+      if (h) log('   Pestana "' + n + '": OK, ' + h.getLastRow() + ' filas');
+      else faltan.push(n);
+    });
+    if (faltan.length) {
+      log('   >> FALTAN pestanas: ' + faltan.join(', ') + '. Los nombres deben ser exactos.');
+    }
+    // Comprobacion real de escritura: leer no garantiza permiso de Editor.
+    var prueba = ss.getSheetByName('Asistente');
+    if (prueba) {
+      var fila = prueba.getLastRow() + 1;
+      prueba.getRange(fila, 1).setValue('__prueba__');
+      SpreadsheetApp.flush();
+      prueba.deleteRow(fila);
+      log('   Permiso de escritura: OK (se escribio y borro una fila de prueba)');
+    }
   } catch (e) {
-    log('3. FALLO en el envio simple: ' + e);
-    log('   >> El problema es MailApp: permisos o cuota. No sigas al paso 4.');
+    log('3. FALLO al acceder a la hoja: ' + e);
+    log('   >> Si el script corre desde la cuenta de APA, comprueba que SHEET_ID');
+    log('      este puesto y que la hoja este compartida con esa cuenta como Editor.');
     return L.join('\n');
   }
 
-  // 4. Descarga del pie de pagina
+  // 4. Envio minimo, sin HTML ni imagen: aisla si el problema es MailApp
+  try {
+    MailApp.sendEmail(CORREO_DE_PRUEBA, 'AVEM 2027 - prueba 1 de 2 (texto simple)',
+      'Si recibes este mensaje, MailApp funciona correctamente.');
+    log('4. Envio simple: OK (enviado)');
+  } catch (e) {
+    log('4. FALLO en el envio simple: ' + e);
+    log('   >> El problema es MailApp: permisos o cuota. No sigas al paso 5.');
+    return L.join('\n');
+  }
+
+  // 5. Descarga del pie de pagina
   var blob = null;
   try {
     blob = UrlFetchApp.fetch(FOOTER_URL).getBlob().setName('footer.png');
-    log('4. Descarga del pie: OK (' + blob.getBytes().length + ' bytes)');
+    log('5. Descarga del pie: OK (' + blob.getBytes().length + ' bytes)');
   } catch (e) {
-    log('4. FALLO al descargar el pie: ' + e);
+    log('5. FALLO al descargar el pie: ' + e);
     log('   >> El correo se enviara igual, pero sin el banner.');
   }
 
-  // 5. Envio completo, igual al que recibe quien se registra
+  // 6. Envio completo, igual al que recibe quien se registra
   try {
     var opciones = {
       to: CORREO_DE_PRUEBA,
@@ -402,10 +468,10 @@ function diagnosticoCorreo() {
     if (RESPONDER_A) opciones.replyTo = RESPONDER_A;
     if (blob) opciones.inlineImages = {footer: blob};
     var usado = enviarConRemitente(opciones);
-    log('5. Envio completo: OK (enviado)');
+    log('6. Envio completo: OK (enviado)');
     log('   Salio desde: ' + usado);
   } catch (e) {
-    log('5. FALLO en el envio completo: ' + e);
+    log('6. FALLO en el envio completo: ' + e);
     return L.join('\n');
   }
 
