@@ -142,9 +142,11 @@ var NOMBRE_REMITENTE = 'AVEM 2027';
 
 // ---- PRUEBAS ---------------------------------------------------------
 // Direccion a la que diagnosticoCorreo() envia los correos de prueba.
+// DEJALO VACIO salvo que quieras probar contra otra direccion: vacio
+// significa "a la cuenta que ejecuta el script", que es lo habitual.
 // Solo se usa al ejecutar el diagnostico a mano; no interviene en los
 // registros reales del formulario.
-var CORREO_DE_PRUEBA = 'CAMBIAME@ejemplo.com';
+var CORREO_DE_PRUEBA = '';
 
 // Logger.log existe en los dos runtimes de Apps Script (V8 y el antiguo Rhino).
 // console solo existe en V8, por eso no se usa directamente.
@@ -354,25 +356,23 @@ function doGet(e) {
 // ============================================================
 // DIAGNOSTICO
 // ============================================================
-// Rellena CORREO_DE_PRUEBA arriba, en el bloque de configuracion,
-// selecciona diagnosticoCorreo en el desplegable de la barra
-// superior y pulsa Ejecutar. Despues abre "Registro de ejecucion":
-// cada paso dice OK o FALLO con el motivo.
+// No hay nada que rellenar: selecciona diagnosticoCorreo en el
+// desplegable de la barra superior y pulsa Ejecutar. Los correos de
+// prueba llegan a la cuenta que ejecuta el script. Despues abre
+// "Registro de ejecucion": cada paso dice OK o FALLO con el motivo.
 // ============================================================
 
 function diagnosticoCorreo() {
   var L = [];
   function log(t) { L.push(t); Logger.log(t); }
 
-  log('--- DIAGNOSTICO AVEM 2027 ---');
-  log('Destinatario de prueba: ' + CORREO_DE_PRUEBA);
+  // Por defecto se prueba contra la propia cuenta que ejecuta, que es quien
+  // esta haciendo la prueba. Evita tener que editar nada y, sobre todo, evita
+  // que un buscar-y-reemplazar toque las referencias a la variable.
+  var destino = CORREO_DE_PRUEBA || Session.getEffectiveUser().getEmail();
 
-  // Se busca el marcador "CAMBIAME", no la direccion completa: asi un
-  // buscar-y-reemplazar de la direccion no puede afectar a esta comprobacion.
-  if (CORREO_DE_PRUEBA.indexOf('CAMBIAME') !== -1) {
-    log('FALLO: no cambiaste CORREO_DE_PRUEBA por tu direccion real.');
-    return L.join('\n');
-  }
+  log('--- DIAGNOSTICO AVEM 2027 ---');
+  log('Destinatario de prueba: ' + destino);
 
   // 1. Runtime
   try {
@@ -440,7 +440,7 @@ function diagnosticoCorreo() {
 
   // 4. Envio minimo, sin HTML ni imagen: aisla si el problema es MailApp
   try {
-    MailApp.sendEmail(CORREO_DE_PRUEBA, 'AVEM 2027 - prueba 1 de 2 (texto simple)',
+    MailApp.sendEmail(destino, 'AVEM 2027 - prueba 1 de 2 (texto simple)',
       'Si recibes este mensaje, MailApp funciona correctamente.');
     log('4. Envio simple: OK (enviado)');
   } catch (e) {
@@ -462,7 +462,7 @@ function diagnosticoCorreo() {
   // 6. Envio completo, igual al que recibe quien se registra
   try {
     var opciones = {
-      to: CORREO_DE_PRUEBA,
+      to: destino,
       subject: 'AVEM 2027 - prueba 2 de 2 (correo real)',
       name: NOMBRE_REMITENTE,
       body: textoPlano(),
